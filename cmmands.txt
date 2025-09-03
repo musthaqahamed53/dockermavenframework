@@ -27,3 +27,288 @@ To stop everything later:
 docker-compose -f docker_compose_standalone.yml down
 
 docker-compose -f docker\docker_compose_grid.yml up -d
+
+
+docker run -p 8080:8080 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts-jdk17
+
+PS C:\Users\Lenovo\IdeaProjects\dockermavenframework> docker ps
+CONTAINER ID   IMAGE                       COMMAND                  CREATED              STATUS              PORTS
+                                NAMES
+cf95234de00f   jenkins/jenkins:lts-jdk17   "/usr/bin/tini -- /u…"   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:50000->50000/tcp, [::]:50000->50000/tcp   busy_davinci
+PS C:\Users\Lenovo\IdeaProjects\dockermavenframework> docker logs cf95234de00f
+
+Jenkins initial setup is required. An admin user has been created and a password generated.
+Please use the following password to proceed to installation:
+
+4392a42fdb324b0d8cb8c1fc4e5c730f
+
+This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
+
+
+-----------------------------------
+
+Dependencies to be used in Project setup for Maven Pom.XML
+
+ <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>4.9.0</version>
+    </dependency>
+
+
+
+    <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-api -->
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-api</artifactId>
+      <version>4.6.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+    <dependency>
+      <groupId>com.aventstack</groupId>
+      <artifactId>extentreports</artifactId>
+      <version>5.0.9</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.28</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.14.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+    <dependency>
+      <groupId>io.github.bonigarcia</groupId>
+      <artifactId>webdrivermanager</artifactId>
+      <version>5.7.0</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.23.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.23.0</version>
+    </dependency>
+
+Plugins for Maven Project Command Execution
+<build>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+      <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+                    <configuration>
+                      <suiteXmlFiles>
+                        <suiteXmlFile>${XmlFile}</suiteXmlFile>
+                      </suiteXmlFiles>
+                      <parallel>tests</parallel>
+                      <threadCount>2</threadCount>
+                    </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+log4j2.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+
+    <Properties>
+        <Property name ="layout">%d [%t] %-5level %logger  - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT"/>
+        <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n" />
+
+        <RollingFile name="RollingFile" filename="./logs/${date:yyyy-MM-dd-dd_HH-mm-ss}.log"
+                     filepattern="${logPath}/%d{YYYYMMddHHmmss}-fargo.log">
+            <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>
+
+Extent Report Function Setup
+public static ExtentReports getReportObject()
+    {
+
+        String reportPath = "./reports/"+dtf.format(LocalDateTime.now());
+        //System.out.println(reportPath);
+        ExtentSparkReporter sparkReporter = new ExtentSparkReporter(reportPath);
+
+        sparkReporter.config().setTimeStampFormat("EEEE, MMMM dd, yyyy, hh:mm a '('zzz')'");
+        sparkReporter.config().setTheme(Theme.DARK);
+        sparkReporter.config().setReportName("Automation Results");
+        sparkReporter.config().setDocumentTitle("Test Results");
+        sparkReporter.config().setJs("document.getElementsByClassName('col-sm-12 col-md-4')[0].style.setProperty('min-inline-size','-webkit-fill-available');");
+
+
+        reports = new ExtentReports();
+        reports.attachReporter(sparkReporter);
+
+        reports.setSystemInfo("Tester is: ", "Japneet Sachdeva");
+        return  reports;
+
+    }
+
+testng.xml file
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite" >
+
+    <test name="Test 1">
+        <parameter name="browserName" value="firefox"/>
+        <classes>
+            <class name="page_tests.LoginPageTests"/>
+        </classes>
+    </test>
+
+    <test name="Test 2">
+        <parameter name="browserName" value="chrome"/>
+        <classes>
+            <class name="page_tests.ProductsPageTests"/>
+        </classes>
+    </test>
+</suite>
+
+Maven commands:
+1)	mvn test - to run the execution of tests using pom.xml
+2)	mvn test -Dsurefire.suiteXmlFiles=testng.xml - Parameterized maven command which executes testng file provided in maven command
+3)	mvn test -DbrowserName=firefox - executes the tests in firefox browser
+4)	mvn test -Dsurefire.suiteXmlFiles -DbrowserName=firefox - executes a particular testng xml tests into firefox browser
+
+Docker setup:
+Install docker - https://www.docker.com/products/docker-desktop/
+
+Selenium-Docker Setup (AMD machines) (GitHub) - https://github.com/SeleniumHQ/docker-selenium
+
+Selenium-Docker Setup (ARM machines) (GitHub) - https://github.com/seleniumhq-community/docker-seleniarm?tab=readme-ov-file
+
+How to check system architecture in MAC os: https://docs.cse.lehigh.edu/determine-mac-architecture/
+
+How to check system architecture in WINDOWS os: https://www.techsolveprac.com/check-system-architecture/
+
+How to get current machine IP address for both mac os and windows: https://www.avg.com/en/signal/find-ip-address
+
+
+Docker Commands:
+1)	docker -v : provides current docker version
+2)	docker ps : provides the currently running docker containers
+3)	docker stop : to stop running containers
+Example: docker stop container_id (id can be received using docker ps)
+4)	docker logs container_id : provides information about the running container
+5)	docker pull image_name : pulls the image using the name mentioned in command from docker hub
+6)	docker-compose -f file_name.yml up : used to run the docker compose file which is in YAML format. “up” is used to run the docker compose file
+7)	docker-compose -f file_name.yml down : used to stop the docker-compose file which is in YAML format. “down” is used to stop the docker compose file
+8)	docker run -d -p 4444:4444 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox
+9)	docker run -d -p 4444:4444 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium
+10)	Docker run -d -p 4444:4444 -p 7900:7900 –shm-size=”2g” selenium/standalone-chrome
+11)	docker ps -a: gives info about the running containers and stopped containers
+
+Explanation for above command:
+
+1)	The docker run command runs a command in a new container, pulling the image if needed and starting the container.
+2)	-d : detached mode
+3)	-p 4444:4444 : port and container port:host port
+4)	–shm-size=2g : 2gb of memory allocated utmost to container
+5)	seleniarm/standalone-firefox : docker image name
+6)	-p 7900:7900 : means a port assigned to 7900 to view VNC
+
+
+Setup Chrome and firefox Standalone browsers
+
+1)	Docker run -d -p 4444:4444 -p 7900:7900 –shm-size=”2g” selenium/standalone-chrome
+2)	Docker run -d -p 4444:4444 -p 7900:7900 –shm-size=”2g” selenium/standalone-firefox
+
+
+Jenkins Setup
+
+docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+
+Expose port 8080 -> Jenkins by default runs on this port
+Expose port 5050 -> Master/slave communication
+-d -> detached mode: Run container in background
+-v -> Bind names volume : Persist data of jenkins such as users, plugins, project setup etc.
+
+To access Jenkins using Selenium Automation Tests
+
+Below url needs to be sent into your Remote WebDriver URL:
+
+http://your_machine_ip_address:4444/wd/hub
+
+Example: http:192.168.00.00:4444/wd/hub
+
+Note: We cannot use localhost here because we cannot access our localhost from outside or from some other remote machine. In this case it's our jenkins container.
+
+
+
+
+
+
+
