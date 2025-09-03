@@ -58,12 +58,14 @@ jobs:
         -Dplatform=${{ github.event.inputs.platform || 'remote_git' }}
         -Dmaven.test.failure.ignore=true
     
-    - name: Upload Test Reports
+    - name: Upload Test Artifacts
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-reports
-        path: ./reports/*.html
+        name: test-artifacts
+        path: |
+          ./reports/*.html
+          ./logs/*.log
 
 #    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
 #    - name: Update dependency graph
