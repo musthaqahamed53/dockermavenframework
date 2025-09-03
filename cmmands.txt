@@ -1,0 +1,29 @@
+mvn test "-Dsurefire.suiteXmlFiles=testng.xml"
+mvn test "-Dsurefire.suiteXmlFiles=testng_maven.xml"
+mvn test "-DbrowserName=firefox"
+
+PS C:\Users\Lenovo\IdeaProjects\dockermavenframework> docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+370434ea1c54   selenium/standalone-firefox:latest   "/opt/bin/entry_poin…"   4 minutes ago    Up 4 minutes    0.0.0.0:4445->4444/tcp, [::]:4445->4444/tcp   ecstatic_meninsky
+cd5f6261fc1a   selenium/standalone-chrome:latest    "/opt/bin/entry_poin…"   48 minutes ago   Up 48 minutes   0.0.0.0:4444->4444/tcp, [::]:4444->4444/tcp   nifty_brown
+PS C:\Users\Lenovo\IdeaProjects\dockermavenframework> docker stop 370434ea1c54
+370434ea1c54
+
+mvn test "-Dplatform=remote" "-Dsurefire.suiteXmlFiles=testng.xml"
+
+docker run -d -p 4445:4444 --shm-size="2g" selenium/standalone-firefox:latest
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:latest
+
+Start the containers:
+docker-compose -f docker\docker_compose_standalone.yml up -d
+
+to stop without removing them (so you can restart later quickly):
+docker-compose -f docker\docker_compose_standalone.yml stop
+
+Then to start them again:
+docker-compose -f docker\docker_compose_standalone.yml start
+
+To stop everything later:
+docker-compose -f docker_compose_standalone.yml down
+
+docker-compose -f docker\docker_compose_grid.yml up -d

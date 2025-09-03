@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="info">
+
+    <Properties>
+        <Property name="layout">%d [%t] %-5level %logger - %m%n</Property> <!-- All five log levels warning error trace info etc -->
+
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT"/> <!-- Log needs to be printed in console -->
+        <PatternLayout pattern="%d{YYYY-MM-dd-HH-mm-ss} [%t] %-5p %c{1}:%L - %msg%n"/>
+        <RollingFile name="RollingFile" filename="./logs/${date:yyyy-MM-dd-dd_HH-mm-ss}.log"
+                     filepattern="${logPath}/%d{YYYYMMddHHmmss}.fargo.log">
+            <!-- Rolling file is the new file created for logs. with .log extension and with datw and time -->
+            <PatternLayout pattern="%d{YYYY-MM-dd-HH-mm-ss} [%t] %-5p %c{1}:%L - %msg%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/> <!-- size should not exceed 10 mb -->
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO"> <!-- Which level we need to start logging we can also use WARN also -->
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
