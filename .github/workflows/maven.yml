@@ -13,6 +13,33 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      browserName:
+        description: 'Browser to run tests on'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+      platform:
+        description: 'Platform to run tests on'
+        required: true
+        default: 'remote_git'
+        type: choice
+        options:
+          - local
+          - remote
+          - remote_git
+      xmlFilename:
+        description: 'TestNG XML file to run'
+        required: true
+        default: 'testng.xml'
+        type: choice
+        options:
+          - testng.xml
+          - testng_maven.xml
 
 jobs:
   build:
@@ -28,7 +55,19 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn clean test
+      run: >
+        mvn test
+        -Dsurefire.suiteXmlFiles=${{ github.event.inputs.xmlFilename || 'testng.xml' }} 
+        -DbrowserName=${{ github.event.inputs.browserName || 'chrome' }} 
+        -Dplatform=${{ github.event.inputs.platform || 'remote_git' }}
+        -Dmaven.test.failure.ignore=true
+    
+    - name: Upload Test Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-reports
+        path: ./reports/*.html
 
 #    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
 #    - name: Update dependency graph
