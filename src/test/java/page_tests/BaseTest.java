@@ -30,19 +30,20 @@ import static utils.ExtentReportHelper.getReportObject;
 public class BaseTest {
     protected WebDriver driver;
     protected String browser;
-    private ChromeOptions co;
+//    private ChromeOptions co;
 
     protected static ThreadLocal<ExtentTest> testLogger = new ThreadLocal<>();
 
     private static final ExtentReports reports = getReportObject();
 
     private static final Logger LOGGER = LogManager.getLogger(BaseTest.class);
-    private FirefoxOptions fo;
+//    private FirefoxOptions fo;
 
     @Parameters({"browserName"})
     @BeforeMethod
     public void setupTest(@Optional String browserName, ITestResult iTestResult) {
-
+        ChromeOptions co = new ChromeOptions();
+        FirefoxOptions fo = new FirefoxOptions();
         if (browserName != null) {
             browser = browserName;
             System.out.println("browser from common 1 "+browser);
@@ -61,7 +62,7 @@ public class BaseTest {
 //                driver = new ChromeDriver(co);
             }
             else if(AppConstants.platform.equalsIgnoreCase("remote")){
-                co = new ChromeOptions();
+
                 co.setPlatformName("linux");
                 co.setPageLoadStrategy(PageLoadStrategy.EAGER);
                 try {
@@ -69,6 +70,14 @@ public class BaseTest {
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            else if(AppConstants.platform.equalsIgnoreCase("remote_git")){
+                co.addArguments("--headless"); //for GitHub actions
+                co.addArguments("--disable-gpu");
+                co.addArguments("--no-sandbox" );
+                WebDriverManager.chromedriver().setup();
+                co.addArguments("--remote-allow-origins=*");
+                driver = new ChromeDriver(co);
             }
             else{
                 LOGGER.error("Platform Not Supported");
@@ -91,6 +100,13 @@ public class BaseTest {
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            else if(AppConstants.platform.equalsIgnoreCase("remote_git")){
+                fo.addArguments("--headless"); //for GitHub actions
+                fo.addArguments("--disable-gpu");
+                fo.addArguments("--no-sandbox");
+                WebDriverManager.firefoxdriver().setup();
+                driver = new FirefoxDriver(fo);
             }
             else{
                 LOGGER.error("Platform Not Supported");
