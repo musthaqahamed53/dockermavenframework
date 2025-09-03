@@ -16,13 +16,9 @@ on:
   workflow_dispatch:
     inputs:
       browserName:
-        description: 'Browser to run tests on'
-        required: true
-        default: 'chrome'
-        type: choice
-        options:
-          - chrome
-          - firefox
+        description: 'Browser to run tests on (optional)'
+        required: false
+        type: string
       platform:
         description: 'Platform to run tests on'
         required: true
@@ -58,7 +54,7 @@ jobs:
       run: >
         mvn test
         -Dsurefire.suiteXmlFiles=${{ github.event.inputs.xmlFilename || 'testng.xml' }} 
-        -DbrowserName=${{ github.event.inputs.browserName || 'chrome' }} 
+        ${{ github.event.inputs.browserName && format('-DbrowserName={0}', github.event.inputs.browserName) || '' }}
         -Dplatform=${{ github.event.inputs.platform || 'remote_git' }}
         -Dmaven.test.failure.ignore=true
     
