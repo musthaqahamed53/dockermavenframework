@@ -13,7 +13,7 @@ public class LoginPageTests extends BaseTest{
 
     @Test
     public void userLoginTest(){
-        loginPageObjects = new LoginPageObjects(driver);
+        loginPageObjects = new LoginPageObjects(getDriver());
         productsPageObjects = loginPageObjects.userLogin("standard_user","secret_sauce");
         LOGGER.info("Username is: "+"standard_user"+" Password is "+"secret_sauce");
         System.out.println(productsPageObjects.getTitleofPage());

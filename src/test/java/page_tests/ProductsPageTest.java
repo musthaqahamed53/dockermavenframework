@@ -12,7 +12,7 @@ public class ProductsPageTest extends BaseTest{
 
     @Test
     public void testItemName(){
-        loginPageObjects = new LoginPageObjects(driver);
+        loginPageObjects = new LoginPageObjects(getDriver());
         productsPageObjects = loginPageObjects.userLogin("performance_glitch_user","secret_sauce");
         System.out.println(productsPageObjects.getTitleofPage());
         System.out.println(productsPageObjects.getItemName());

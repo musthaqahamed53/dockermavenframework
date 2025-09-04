@@ -28,16 +28,27 @@ import java.time.LocalDateTime;
 import static utils.ExtentReportHelper.getReportObject;
 
 public class BaseTest {
-    protected WebDriver driver;
     protected String browser;
-//    private ChromeOptions co;
+
+    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
 
     protected static ThreadLocal<ExtentTest> testLogger = new ThreadLocal<>();
 
     private static final ExtentReports reports = getReportObject();
 
     private static final Logger LOGGER = LogManager.getLogger(BaseTest.class);
-//    private FirefoxOptions fo;
+
+    public static WebDriver getDriver() {
+        return driverThreadLocal.get();
+    }
+
+    public static void setDriver(WebDriver driver) {
+        driverThreadLocal.set(driver);
+    }
+
+    public static void removeDriver() {
+        driverThreadLocal.remove();
+    }
 
     @Parameters({"browserName"})
     @BeforeMethod
@@ -57,16 +68,16 @@ public class BaseTest {
         if (browser.equalsIgnoreCase("chrome")) {
             if (AppConstants.platform.equalsIgnoreCase("local")) {
                 WebDriverManager.chromedriver().setup();
-                driver = new ChromeDriver();
+                setDriver(new ChromeDriver());
 //                co.addArguments("--remote-allow-origins=*"); //help us remove any remote origins error
-//                driver = new ChromeDriver(co);
+//                setDriver(new ChromeDriver(co));
             }
             else if(AppConstants.platform.equalsIgnoreCase("remote")){
 
                 co.setPlatformName("linux");
                 co.setPageLoadStrategy(PageLoadStrategy.EAGER);
                 try {
-                    driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), co);
+                    setDriver(new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), co));
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
@@ -77,7 +88,7 @@ public class BaseTest {
                 co.addArguments("--no-sandbox" );
                 WebDriverManager.chromedriver().setup();
                 co.addArguments("--remote-allow-origins=*");
-                driver = new ChromeDriver(co);
+                setDriver(new ChromeDriver(co));
             }
             else{
                 LOGGER.error("Platform Not Supported");
@@ -88,15 +99,15 @@ public class BaseTest {
 //                fo = new FirefoxOptions();
 //                fo.addArguments("--remote-allow-origins=*"); //help us remove any remote origins error
                 WebDriverManager.firefoxdriver().setup();
-//                driver = new FirefoxDriver(fo);
-                driver = new FirefoxDriver();
+//                setDriver(new FirefoxDriver(fo));
+                setDriver(new FirefoxDriver());
             }
             else if (AppConstants.platform.equalsIgnoreCase("remote")) {
                 fo = new FirefoxOptions();
                 fo.setPlatformName("linux");
                 fo.setPageLoadStrategy(PageLoadStrategy.EAGER);
                 try {
-                    driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), fo);
+                    setDriver(new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), fo));
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
@@ -106,7 +117,7 @@ public class BaseTest {
                 fo.addArguments("--disable-gpu");
                 fo.addArguments("--no-sandbox");
                 WebDriverManager.firefoxdriver().setup();
-                driver = new FirefoxDriver(fo);
+                setDriver(new FirefoxDriver(fo));
             }
             else{
                 LOGGER.error("Platform Not Supported");
@@ -131,15 +142,16 @@ public class BaseTest {
         }
         else{
             testLogger.get().log(Status.FAIL,"Test Failed due to: "+ iTestResult.getThrowable());
-            String screenshot = BasePage.getScreenshot(iTestResult.getMethod().getMethodName()+".jpg",driver);
+            String screenshot = BasePage.getScreenshot(iTestResult.getMethod().getMethodName()+".jpg",getDriver());
             testLogger.get().fail(MediaEntityBuilder.createScreenCaptureFromBase64String(BasePage.converting_Base64(screenshot)).build());
         }
 
         testLogger.get().log(Status.INFO,"Driver End Time: "+ LocalDateTime.now());
 
 
-        if (driver != null) { // Fix: avoid NullPointerException
-            driver.quit();
+        if (getDriver() != null) { // Fix: avoid NullPointerException
+            getDriver().quit();
+            removeDriver();
         }
     }
 
